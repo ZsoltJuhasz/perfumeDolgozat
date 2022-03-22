@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class PerfumeController extends Controller
 {
     public function getPerfumes() {
 
         $perfumes = Perfume::all();
-
-        return view( "/perfumes" );
+        return view( "perfumes" );
     }
 
     public function newPerfume() {
@@ -28,7 +30,7 @@ class PerfumeController extends Controller
 
         $perfume->save();
 
-        return redirect( "/new-perfume" );
+        return redirect( "new-perfume" );
     }
 
     public function editPerfume( $id ) {
@@ -41,7 +43,13 @@ class PerfumeController extends Controller
     }
 
     public function updatePerfume( Request $request ) {
+        DB::table("perfumes")->where("id", 2)->update([
+            "name" => "Chanel",
+            "type" => "női",
+            "price" => 10000
+        ]);
 
+        echo ("A parfüm módosítása sikeres");
     }
 
     public function deletePerfume( $id ) {
@@ -49,6 +57,26 @@ class PerfumeController extends Controller
         $perfume = Perfume::find( $id );
         $perfume->delete();
 
-        return redirect( "/perfumes" );
+        return redirect( "perfumes" );
+    }
+
+    public function submitPerfume(Request $request)
+    {
+
+        $validate = Validator::make(
+            $request->all(),
+            [
+                "name" => "required|min:4|max:20",
+                "type" => "required",
+                "price" => "required"
+            ],
+            [
+                "name.required" => "Név kötelező",
+                "type.required" => "Típus kötelező",
+                "price.required" => "Ár kötelező",
+            ]
+        )->validate();
+
+        print_r($request->all());
     }
 }
